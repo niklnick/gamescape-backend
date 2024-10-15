@@ -1,6 +1,6 @@
 import { Exclude } from "class-transformer";
 import { Game } from "src/games/entities/game.entity";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -20,6 +20,6 @@ export class User {
     @Column()
     password: string;
 
-    @ManyToOne(() => Game, (game: Game) => game.author)
+    @OneToMany(() => Game, (game: Game) => game.author)
     games: Game[];
 }
