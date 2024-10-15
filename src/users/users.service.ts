@@ -33,6 +33,14 @@ export class UsersService {
     }
   }
 
+  async findOneByEmail(email: string): Promise<User> {
+    try {
+      return await this.usersRepository.findOneOrFail({ where: { email: email } });
+    } catch {
+      throw new NotFoundException();
+    }
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     try {
       const user: User = await this.usersRepository.findOneOrFail({ where: { id: id } });
