@@ -7,7 +7,7 @@ import { AuthService } from './auth.service';
 
 @Module({
   imports: [
-    JwtModule.registerAsync({ useClass: JwtConfigService }),
+    JwtModule.registerAsync({ global: true, useClass: JwtConfigService }),
     UsersModule
   ],
   controllers: [AuthController],
