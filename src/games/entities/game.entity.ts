@@ -13,6 +13,6 @@ export class Game {
     description: string;
 
     @ManyToOne(() => User, (user: User) => user.games, { nullable: false, onDelete: 'CASCADE' })
-    @JoinColumn({ name: 'user_id' })
-    user: User;
+    @JoinColumn({ name: 'author_id' })
+    author: User;
 }

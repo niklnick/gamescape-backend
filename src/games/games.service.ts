@@ -17,14 +17,14 @@ export class GamesService {
   }
 
   async findAll(): Promise<Game[]> {
-    return await this.gamesRepository.find({ relations: { user: true } });
+    return await this.gamesRepository.find({ relations: { author: true } });
   }
 
   async findOne(id: string): Promise<Game> {
     try {
       return await this.gamesRepository.findOneOrFail({
         where: { id: id },
-        relations: { user: true }
+        relations: { author: true }
       });
     } catch {
       throw new NotFoundException();

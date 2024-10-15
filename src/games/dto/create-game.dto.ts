@@ -7,5 +7,5 @@ export class CreateGameDto {
     @IsNotEmpty()
     readonly description: string;
     @IsNotEmptyObject()
-    readonly user: User;
+    readonly author: User;
 }

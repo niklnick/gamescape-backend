@@ -20,6 +20,6 @@ export class User {
     @Column()
     password: string;
 
-    @ManyToOne(() => Game, (game: Game) => game.user)
+    @ManyToOne(() => Game, (game: Game) => game.author)
     games: Game[];
 }
