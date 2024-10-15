@@ -1,4 +1,5 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nestjs/common';
+import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { LogInDto } from './dto/log-in.dto';
@@ -17,5 +18,11 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async logIn(@Body() logInDto: LogInDto): Promise<AuthDto> {
         return await this.authService.logIn(logInDto);
+    }
+
+    @Get('refresh')
+    @UseGuards(AuthGuard)
+    async refresh(@Request() request: Request): Promise<AuthDto> {
+        return await this.authService.refresh(request['sub']);
     }
 }

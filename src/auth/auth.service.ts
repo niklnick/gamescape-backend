@@ -28,6 +28,12 @@ export class AuthService {
         return await this.tokenize(user);
     }
 
+    async refresh(userId: string): Promise<AuthDto> {
+        const user: User = await this.usersService.findOne(userId);
+
+        return await this.tokenize(user);
+    }
+
     private async tokenize(user: User): Promise<AuthDto> {
         return {
             user: user,
