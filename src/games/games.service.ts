@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateGameDto } from './dto/create-game.dto';
@@ -31,12 +31,17 @@ export class GamesService {
     }
   }
 
-  async update(id: string, updateGameDto: UpdateGameDto): Promise<Game> {
+  async update(userId: string, id: string, updateGameDto: UpdateGameDto): Promise<Game> {
     if (updateGameDto.title && await this.gamesRepository.existsBy({ title: updateGameDto.title }))
       throw new ConflictException('Title already assigned');
 
     try {
-      const game: Game = await this.gamesRepository.findOneOrFail({ where: { id: id } });
+      const game: Game = await this.gamesRepository.findOneOrFail({
+        where: { id: id },
+        relations: { author: true }
+      });
+
+      if (userId !== game.author.id) throw new UnauthorizedException();
 
       return await this.gamesRepository.save({ ...game, ...updateGameDto });
     } catch {
@@ -44,9 +49,14 @@ export class GamesService {
     }
   }
 
-  async remove(id: string): Promise<Game> {
+  async remove(userId: string, id: string): Promise<Game> {
     try {
-      const game: Game = await this.gamesRepository.findOneOrFail({ where: { id: id } });
+      const game: Game = await this.gamesRepository.findOneOrFail({
+        where: { id: id },
+        relations: { author: true }
+      });
+
+      if (userId !== game.author.id) throw new UnauthorizedException();
 
       return await this.gamesRepository.remove(game);
     } catch {

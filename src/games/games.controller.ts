@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Request, UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
 import { Game } from './entities/game.entity';
@@ -24,12 +25,21 @@ export class GamesController {
   }
 
   @Patch(':id')
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() updateGameDto: UpdateGameDto): Promise<Game> {
-    return await this.gamesService.update(id, updateGameDto);
+  @UseGuards(AuthGuard)
+  async update(
+    @Request() request: Request,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateGameDto: UpdateGameDto
+  ): Promise<Game> {
+    return await this.gamesService.update(request['sub'], id, updateGameDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<Game> {
-    return await this.gamesService.remove(id);
+  @UseGuards(AuthGuard)
+  async remove(
+    @Request() request: Request,
+    @Param('id', ParseUUIDPipe) id: string
+  ): Promise<Game> {
+    return await this.gamesService.remove(request['sub'], id);
   }
 }
