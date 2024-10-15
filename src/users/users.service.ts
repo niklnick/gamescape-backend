@@ -1,5 +1,6 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { genSalt, hash } from 'bcrypt';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -13,7 +14,11 @@ export class UsersService {
     if (await this.usersRepository.existsBy({ email: createUserDto.email }))
       throw new ConflictException('Email already assigned');
 
-    return await this.usersRepository.save(this.usersRepository.create(createUserDto));
+    const user: User = this.usersRepository.create(createUserDto);
+
+    return await this.usersRepository.save({
+      ...user, password: await hash(user.password, await genSalt())
+    });
   }
 
   async findAll(): Promise<User[]> {
@@ -29,13 +34,35 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    if (updateUserDto.email && await this.usersRepository.existsBy({ email: updateUserDto.email }))
+    try {
+      const user: User = await this.usersRepository.findOneOrFail({ where: { id: id } });
+
+      return await this.usersRepository.save({ ...user, ...updateUserDto });
+    } catch {
+      throw new NotFoundException();
+    }
+  }
+
+  async updateEmail(id: string, email: string): Promise<User> {
+    if (await this.usersRepository.existsBy({ email: email }))
       throw new ConflictException('Email already assigned');
 
     try {
       const user: User = await this.usersRepository.findOneOrFail({ where: { id: id } });
 
-      return await this.usersRepository.save({ ...user, ...updateUserDto });
+      return await this.usersRepository.save({ ...user, email: email });
+    } catch {
+      throw new NotFoundException();
+    }
+  }
+
+  async updatePassword(id: string, password: string): Promise<User> {
+    try {
+      const user: User = await this.usersRepository.findOneOrFail({ where: { id: id } });
+
+      return await this.usersRepository.save({
+        ...user, password: await hash(password, await genSalt())
+      });
     } catch {
       throw new NotFoundException();
     }
