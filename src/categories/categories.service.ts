@@ -17,12 +17,15 @@ export class CategoriesService {
   }
 
   async findAll(): Promise<Category[]> {
-    return this.categoriesRepository.find();
+    return this.categoriesRepository.find({ relations: { games: { author: true } } });
   }
 
   async findOne(id: string): Promise<Category> {
     try {
-      return await this.categoriesRepository.findOneOrFail({ where: { id: id } });
+      return await this.categoriesRepository.findOneOrFail({
+        where: { id: id },
+        relations: { games: { author: true } }
+      });
     } catch {
       throw new NotFoundException();
     }

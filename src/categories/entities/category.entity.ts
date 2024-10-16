@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Game } from "src/games/entities/game.entity";
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Category {
@@ -10,4 +11,7 @@ export class Category {
 
     @Column({ nullable: true })
     description?: string | null;
+
+    @ManyToMany(() => Game, (game: Game) => game.categories)
+    games: Game[];
 }
