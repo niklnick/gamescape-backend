@@ -19,9 +19,10 @@ export class GamesService {
   async findAll(): Promise<Game[]> {
     return await this.gamesRepository.find({
       relations: {
+        categories: true,
         author: true,
-        base: true,
-        variations: { author: true },
+        base: { categories: true, author: true },
+        variations: { categories: true, author: true },
       }
     });
   }
@@ -31,9 +32,10 @@ export class GamesService {
       return await this.gamesRepository.findOneOrFail({
         where: { id: id },
         relations: {
+          categories: true,
           author: true,
-          base: { author: true },
-          variations: { author: true },
+          base: { categories: true, author: true },
+          variations: { categories: true, author: true },
         }
       });
     } catch {
@@ -47,7 +49,11 @@ export class GamesService {
 
     const game: Game | null = await this.gamesRepository.findOne({
       where: { id: id },
-      relations: { author: true }
+      relations: {
+        categories: true,
+        author: true,
+        base: { categories: true, author: true }
+      }
     });
 
     if (!game) throw new NotFoundException();
