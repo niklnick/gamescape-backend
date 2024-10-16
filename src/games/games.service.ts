@@ -20,9 +20,10 @@ export class GamesService {
     return await this.gamesRepository.find({
       relations: {
         categories: true,
+        materials: true,
         author: true,
-        base: { categories: true, author: true },
-        variations: { categories: true, author: true },
+        base: { categories: true, materials: true, author: true },
+        variations: { categories: true, materials: true, author: true }
       }
     });
   }
@@ -33,9 +34,10 @@ export class GamesService {
         where: { id: id },
         relations: {
           categories: true,
+          materials: true,
           author: true,
-          base: { categories: true, author: true },
-          variations: { categories: true, author: true },
+          base: { categories: true, materials: true, author: true },
+          variations: { categories: true, materials: true, author: true }
         }
       });
     } catch {
@@ -51,8 +53,9 @@ export class GamesService {
       where: { id: id },
       relations: {
         categories: true,
+        materials: true,
         author: true,
-        base: { categories: true, author: true }
+        base: { categories: true, materials: true, author: true }
       }
     });
 
