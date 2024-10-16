@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsNotEmptyObject } from "class-validator";
 import { User } from "src/users/entities/user.entity";
+import { Game } from "../entities/game.entity";
 
 export class CreateGameDto {
     @IsNotEmpty()
@@ -8,4 +9,6 @@ export class CreateGameDto {
     readonly description: string;
     @IsNotEmptyObject()
     readonly author: User;
+    @IsNotEmptyObject({ nullable: true })
+    readonly base?: Game | null;
 }

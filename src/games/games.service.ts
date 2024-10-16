@@ -17,14 +17,24 @@ export class GamesService {
   }
 
   async findAll(): Promise<Game[]> {
-    return await this.gamesRepository.find({ relations: { author: true } });
+    return await this.gamesRepository.find({
+      relations: {
+        author: true,
+        base: true,
+        variations: { author: true },
+      }
+    });
   }
 
   async findOne(id: string): Promise<Game> {
     try {
       return await this.gamesRepository.findOneOrFail({
         where: { id: id },
-        relations: { author: true }
+        relations: {
+          author: true,
+          base: { author: true },
+          variations: { author: true },
+        }
       });
     } catch {
       throw new NotFoundException();
@@ -53,7 +63,7 @@ export class GamesService {
     try {
       const game: Game = await this.gamesRepository.findOneOrFail({
         where: { id: id },
-        relations: { author: true }
+        relations: { author: true, variations: { author: true } }
       });
 
       if (userId !== game.author.id) throw new UnauthorizedException();
