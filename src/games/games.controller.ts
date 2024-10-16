@@ -10,8 +10,12 @@ export class GamesController {
   constructor(private readonly gamesService: GamesService) { }
 
   @Post()
-  async create(@Body() createGameDto: CreateGameDto): Promise<Game> {
-    return await this.gamesService.create(createGameDto);
+  @UseGuards(AuthGuard)
+  async create(
+    @Request() request: Request,
+    @Body() createGameDto: CreateGameDto
+  ): Promise<Game> {
+    return await this.gamesService.create(request['sub'], createGameDto);
   }
 
   @Get()

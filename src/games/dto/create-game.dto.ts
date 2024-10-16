@@ -1,6 +1,6 @@
 import { IsArray, IsNotEmpty, IsNotEmptyObject, IsOptional } from "class-validator";
 import { Category } from "src/categories/entities/category.entity";
-import { User } from "src/users/entities/user.entity";
+import { Material } from "src/materials/entities/material.entity";
 import { Game } from "../entities/game.entity";
 
 export class CreateGameDto {
@@ -10,8 +10,8 @@ export class CreateGameDto {
     readonly description: string;
     @IsArray()
     readonly categories: Category[];
-    @IsNotEmptyObject()
-    readonly author: User;
+    @IsArray()
+    readonly materials: Material[];
     @IsOptional()
     @IsNotEmptyObject({ nullable: true })
     readonly base?: Game | null;
