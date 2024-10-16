@@ -17,7 +17,7 @@ export class CategoriesService {
   }
 
   async findAll(): Promise<Category[]> {
-    return this.categoriesRepository.find({ relations: { games: { author: true } } });
+    return await this.categoriesRepository.find({ relations: { games: { author: true } } });
   }
 
   async findOne(id: string): Promise<Category> {
