@@ -45,32 +45,26 @@ export class GamesService {
     if (updateGameDto.title && await this.gamesRepository.existsBy({ title: updateGameDto.title }))
       throw new ConflictException('Title already assigned');
 
-    try {
-      const game: Game = await this.gamesRepository.findOneOrFail({
-        where: { id: id },
-        relations: { author: true }
-      });
+    const game: Game | null = await this.gamesRepository.findOne({
+      where: { id: id },
+      relations: { author: true }
+    });
 
-      if (userId !== game.author.id) throw new UnauthorizedException();
+    if (!game) throw new NotFoundException();
+    if (userId !== game.author.id) throw new UnauthorizedException();
 
-      return await this.gamesRepository.save({ ...game, ...updateGameDto });
-    } catch {
-      throw new NotFoundException();
-    }
+    return await this.gamesRepository.save({ ...game, ...updateGameDto });
   }
 
   async remove(userId: string, id: string): Promise<Game> {
-    try {
-      const game: Game = await this.gamesRepository.findOneOrFail({
-        where: { id: id },
-        relations: { author: true, variations: { author: true } }
-      });
+    const game: Game | null = await this.gamesRepository.findOne({
+      where: { id: id },
+      relations: { author: true, variations: { author: true } }
+    });
 
-      if (userId !== game.author.id) throw new UnauthorizedException();
+    if (!game) throw new NotFoundException();
+    if (userId !== game.author.id) throw new UnauthorizedException();
 
-      return await this.gamesRepository.remove(game);
-    } catch {
-      throw new NotFoundException();
-    }
+    return await this.gamesRepository.remove(game);
   }
 }
