@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateMaterialDto } from './dto/create-material.dto';
@@ -22,24 +22,35 @@ export class MaterialsService {
 
   async findOne(id: string): Promise<Material> {
     try {
-      return await this.materialsRepository.findOne({ where: { id: id } });
+      return await this.materialsRepository.findOne({
+        where: { id: id },
+        relations: { author: true }
+      });
     } catch {
       throw new NotFoundException();
     }
   }
 
-  async update(id: string, updateMaterialDto: UpdateMaterialDto): Promise<Material> {
-    const material: Material | null = await this.materialsRepository.findOne({ where: { id: id } });
+  async update(userId: string, id: string, updateMaterialDto: UpdateMaterialDto): Promise<Material> {
+    const material: Material | null = await this.materialsRepository.findOne({
+      where: { id: id },
+      relations: { author: true }
+    });
 
     if (!material) throw new NotFoundException();
+    if (userId !== material.author.id) throw new UnauthorizedException();
 
     return await this.materialsRepository.save({ ...material, ...updateMaterialDto });
   }
 
-  async remove(id: string): Promise<Material> {
-    const material: Material | null = await this.materialsRepository.findOne({ where: { id: id } });
+  async remove(userId: string, id: string): Promise<Material> {
+    const material: Material | null = await this.materialsRepository.findOne({
+      where: { id: id },
+      relations: { author: true }
+    });
 
     if (!material) throw new NotFoundException();
+    if (userId !== material.author.id) throw new UnauthorizedException();
 
     return await this.materialsRepository.remove(material);
   }

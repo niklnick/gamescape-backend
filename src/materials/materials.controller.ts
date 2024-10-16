@@ -1,4 +1,5 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Request, UseGuards } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateMaterialDto } from './dto/create-material.dto';
 import { UpdateMaterialDto } from './dto/update-material.dto';
 import { Material } from './entities/material.entity';
@@ -24,15 +25,21 @@ export class MaterialsController {
   }
 
   @Patch(':id')
+  @UseGuards(AuthGuard)
   async update(
+    @Request() request: Request,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateMaterialDto: UpdateMaterialDto
   ): Promise<Material> {
-    return await this.materialsService.update(id, updateMaterialDto);
+    return await this.materialsService.update(request['sub'], id, updateMaterialDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<Material> {
-    return await this.materialsService.remove(id);
+  @UseGuards(AuthGuard)
+  async remove(
+    @Request() request: Request,
+    @Param('id', ParseUUIDPipe) id: string
+  ): Promise<Material> {
+    return await this.materialsService.remove(request['sub'], id);
   }
 }

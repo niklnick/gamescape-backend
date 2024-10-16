@@ -26,6 +26,7 @@ export class Game {
     author: User;
 
     @ManyToOne(() => Game, (game: Game) => game.variations, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'base_id' })
     base?: Game | null;
 
     @OneToMany(() => Game, (game: Game) => game.base)
