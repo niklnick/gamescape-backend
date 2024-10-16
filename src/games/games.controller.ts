@@ -16,7 +16,7 @@ export class GamesController {
 
   @Get()
   async findAll(): Promise<Game[]> {
-    return await this.gamesService.findAll();
+    return (await this.gamesService.findAll()).filter((game: Game) => !game.base);
   }
 
   @Get(':id')

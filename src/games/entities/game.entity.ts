@@ -1,5 +1,6 @@
+import { Category } from "src/categories/entities/category.entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Game {
@@ -12,7 +13,21 @@ export class Game {
     @Column()
     description: string;
 
+    @ManyToMany(() => Category, (category: Category) => category.games)
+    @JoinTable({
+        name: 'game_category',
+        joinColumn: { name: 'game_id' },
+        inverseJoinColumn: { name: 'category_id' }
+    })
+    categories: Category[];
+
     @ManyToOne(() => User, (user: User) => user.games, { nullable: false, onDelete: 'CASCADE' })
     @JoinColumn({ name: 'author_id' })
     author: User;
+
+    @ManyToOne(() => Game, (game: Game) => game.variations, { onDelete: 'CASCADE' })
+    base?: Game | null;
+
+    @OneToMany(() => Game, (game: Game) => game.base)
+    variations: Game[];
 }
