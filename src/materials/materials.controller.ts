@@ -10,8 +10,12 @@ export class MaterialsController {
   constructor(private readonly materialsService: MaterialsService) { }
 
   @Post()
-  async create(@Body() createMaterialDto: CreateMaterialDto): Promise<Material> {
-    return await this.materialsService.create(createMaterialDto);
+  @UseGuards(AuthGuard)
+  async create(
+    @Request() request: Request,
+    @Body() createMaterialDto: CreateMaterialDto
+  ): Promise<Material> {
+    return await this.materialsService.create(request['sub'], createMaterialDto);
   }
 
   @Get()

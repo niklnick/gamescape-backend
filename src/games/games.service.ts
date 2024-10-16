@@ -1,5 +1,8 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Material } from 'src/materials/entities/material.entity';
+import { User } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { CreateGameDto } from './dto/create-game.dto';
 import { UpdateGameDto } from './dto/update-game.dto';
@@ -7,13 +10,25 @@ import { Game } from './entities/game.entity';
 
 @Injectable()
 export class GamesService {
-  constructor(@InjectRepository(Game) private readonly gamesRepository: Repository<Game>) { }
+  constructor(
+    @InjectRepository(Game) private readonly gamesRepository: Repository<Game>,
+    private readonly usersService: UsersService
+  ) { }
 
-  async create(createGameDto: CreateGameDto): Promise<Game> {
+  async create(userId: string, createGameDto: CreateGameDto): Promise<Game> {
     if (await this.gamesRepository.existsBy({ title: createGameDto.title }))
       throw new ConflictException('Title already assigned');
 
-    return await this.gamesRepository.save(this.gamesRepository.create(createGameDto));
+    const author: User = await this.usersService.findOne(userId);
+    const game: Game = this.gamesRepository.create({
+      ...createGameDto,
+      materials: createGameDto.materials?.map((material: Material) => {
+        return { ...material, author: author };
+      }),
+      author: author
+    });
+
+    return await this.gamesRepository.save(game);
   }
 
   async findAll(): Promise<Game[]> {

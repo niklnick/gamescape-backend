@@ -1,5 +1,7 @@
 import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 import { CreateMaterialDto } from './dto/create-material.dto';
 import { UpdateMaterialDto } from './dto/update-material.dto';
@@ -7,13 +9,22 @@ import { Material } from './entities/material.entity';
 
 @Injectable()
 export class MaterialsService {
-  constructor(@InjectRepository(Material) private readonly materialsRepository: Repository<Material>) { }
+  constructor(
+    @InjectRepository(Material) private readonly materialsRepository: Repository<Material>,
+    private readonly usersService: UsersService
+  ) { }
 
-  async create(createMaterialDto: CreateMaterialDto): Promise<Material> {
+  async create(userId: string, createMaterialDto: CreateMaterialDto): Promise<Material> {
     if (await this.materialsRepository.existsBy({ title: createMaterialDto.title }))
       throw new ConflictException('Title already assigned');
 
-    return await this.materialsRepository.save(this.materialsRepository.create(createMaterialDto));
+    const author: User = await this.usersService.findOne(userId);
+    const material: Material = this.materialsRepository.create({
+      ...createMaterialDto,
+      author: author
+    });
+
+    return await this.materialsRepository.save(material);
   }
 
   async findAll(): Promise<Material[]> {
@@ -22,7 +33,7 @@ export class MaterialsService {
 
   async findOne(id: string): Promise<Material> {
     try {
-      return await this.materialsRepository.findOne({
+      return await this.materialsRepository.findOneOrFail({
         where: { id: id },
         relations: { author: true }
       });
