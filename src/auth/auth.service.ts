@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { User } from 'src/users/entities/user.entity';
+import { Role } from 'src/users/enums/role.enum';
 import { UsersService } from 'src/users/users.service';
 import { AuthDto } from './dto/auth.dto';
 import { LogInDto } from './dto/log-in.dto';
@@ -35,10 +36,15 @@ export class AuthService {
     }
 
     private async tokenize(user: User): Promise<AuthDto> {
+        const payload: {
+            readonly sub: string,
+            readonly role: Role
+        } = { sub: user.id, role: user.role };
+
         return {
             user: user,
-            accessToken: await this.jwtService.signAsync({ sub: user.id }, { expiresIn: '10m' }),
-            refreshToken: await this.jwtService.signAsync({ sub: user.id }, { expiresIn: '24h' })
+            accessToken: await this.jwtService.signAsync(payload, { expiresIn: '10m' }),
+            refreshToken: await this.jwtService.signAsync(payload, { expiresIn: '24h' })
         };
     }
 }

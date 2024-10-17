@@ -1,11 +1,14 @@
 import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RolesGuard } from 'src/guards/roles.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserEmailDto } from './dto/update-user-email.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { Role } from './enums/role.enum';
 import { UsersService } from './users.service';
 
 @Controller()
@@ -13,6 +16,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return await this.usersService.create(createUserDto);
   }
@@ -64,6 +69,8 @@ export class UsersController {
   }
 
   @Patch(':id/role')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
   async updateRole(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() { role }: UpdateUserRoleDto
