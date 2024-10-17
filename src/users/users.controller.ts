@@ -3,6 +3,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserEmailDto } from './dto/update-user-email.dto';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -13,17 +14,17 @@ export class UsersController {
 
   @Post()
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.usersService.create(createUserDto);
+    return await this.usersService.create(createUserDto);
   }
 
   @Get()
   async findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+    return await this.usersService.findAll();
   }
 
   @Get(':id')
   async findOne(@Param('id', ParseUUIDPipe) id: string): Promise<User> {
-    return this.usersService.findOne(id);
+    return await this.usersService.findOne(id);
   }
 
   @Patch(':id')
@@ -35,7 +36,7 @@ export class UsersController {
   ): Promise<User> {
     if (request['sub'] !== id) throw new UnauthorizedException();
 
-    return this.usersService.update(id, updateUserDto);
+    return await this.usersService.update(id, updateUserDto);
   }
 
   @Patch(':id/email')
@@ -47,7 +48,7 @@ export class UsersController {
   ): Promise<User> {
     if (request['sub'] !== id) throw new UnauthorizedException();
 
-    return this.usersService.updateEmail(id, email);
+    return await this.usersService.updateEmail(id, email);
   }
 
   @Patch(':id/password')
@@ -59,16 +60,25 @@ export class UsersController {
   ): Promise<User> {
     if (request['sub'] !== id) throw new UnauthorizedException();
 
-    return this.usersService.updatePassword(id, password);
+    return await this.usersService.updatePassword(id, password);
+  }
+
+  @Patch(':id/role')
+  async updateRole(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() { role }: UpdateUserRoleDto
+  ): Promise<User> {
+    return await this.usersService.updateRole(id, role);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard)
   async remove(
     @Request() request: Request,
-    @Param('id', ParseUUIDPipe) id: string): Promise<User> {
+    @Param('id', ParseUUIDPipe) id: string
+  ): Promise<User> {
     if (request['sub'] !== id) throw new UnauthorizedException();
 
-    return this.usersService.remove(id);
+    return await this.usersService.remove(id);
   }
 }
